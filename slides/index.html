@@ -1,0 +1,1569 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#17231b" />
+    <title>Git &amp; GitHub 實戰簡報｜拯救土撥鼠咖啡館</title>
+    <style>
+      :root {
+        --ink: #17231b;
+        --paper: #f6f0df;
+        --cream: #fffaf0;
+        --moss: #315c42;
+        --leaf: #a8cc8a;
+        --orange: #e87535;
+        --yellow: #f2c94c;
+        --pink: #ef8f91;
+        --muted: #6f766f;
+        --line: rgb(23 35 27 / 16%);
+        --shadow: 0 1.4rem 4rem rgb(27 39 30 / 16%);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "Noto Sans TC", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        color: var(--ink);
+        background: var(--ink);
+      }
+
+      body {
+        font-size: clamp(13px, 1.45vw, 25px);
+      }
+
+      button,
+      a {
+        font: inherit;
+      }
+
+      button {
+        color: inherit;
+      }
+
+      .deck {
+        position: fixed;
+        inset: 0;
+        background: var(--paper);
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1.2em;
+        padding: 5.2vh 6.5vw 7vh;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+          radial-gradient(circle at 86% 18%, rgb(242 201 76 / 18%), transparent 23%),
+          linear-gradient(135deg, #fffaf0, #f1ead7);
+      }
+
+      .slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        opacity: 0.16;
+        background-image: radial-gradient(var(--moss) 0.75px, transparent 0.75px);
+        background-size: 19px 19px;
+      }
+
+      .slide::after {
+        content: attr(data-chapter);
+        position: absolute;
+        right: 2.2rem;
+        top: 1.6rem;
+        color: var(--muted);
+        font-size: 0.58em;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .slide.active {
+        display: flex;
+        animation: enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+
+      @keyframes enter {
+        from {
+          opacity: 0;
+          transform: translateY(1.2rem) scale(0.99);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .slide.active {
+          animation: none;
+        }
+
+        * {
+          scroll-behavior: auto !important;
+          transition: none !important;
+        }
+      }
+
+      h1,
+      h2,
+      h3,
+      p,
+      ul,
+      ol,
+      pre,
+      blockquote {
+        margin: 0;
+      }
+
+      h1,
+      h2,
+      h3 {
+        letter-spacing: -0.035em;
+        line-height: 1.04;
+      }
+
+      h1 {
+        max-width: 10em;
+        font-size: 4.2em;
+      }
+
+      h2 {
+        max-width: 15em;
+        font-size: 2.7em;
+      }
+
+      h3 {
+        font-size: 1.35em;
+      }
+
+      p,
+      li {
+        line-height: 1.52;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.3em;
+      }
+
+      li + li {
+        margin-top: 0.44em;
+      }
+
+      strong {
+        color: var(--moss);
+      }
+
+      code,
+      pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      code:not(pre code) {
+        padding: 0.1em 0.32em;
+        border: 1px solid var(--line);
+        border-radius: 0.35em;
+        background: rgb(255 255 255 / 62%);
+        color: #8f3e18;
+      }
+
+      pre {
+        padding: 1.05em 1.25em;
+        overflow: hidden;
+        border: 1px solid rgb(255 255 255 / 12%);
+        border-radius: 0.9em;
+        color: #f7f4e8;
+        background: #17231b;
+        box-shadow: var(--shadow);
+        font-size: 0.92em;
+        line-height: 1.62;
+      }
+
+      pre .prompt {
+        color: var(--yellow);
+      }
+
+      pre .comment {
+        color: #a6b5aa;
+      }
+
+      .eyebrow {
+        color: var(--orange);
+        font-size: 0.72em;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .lede {
+        max-width: 36em;
+        color: #4e5a52;
+        font-size: 1.2em;
+      }
+
+      .accent {
+        color: var(--orange);
+      }
+
+      .marker {
+        position: relative;
+        white-space: nowrap;
+      }
+
+      .marker::after {
+        content: "";
+        position: absolute;
+        left: -0.06em;
+        right: -0.08em;
+        bottom: 0.06em;
+        z-index: -1;
+        height: 0.26em;
+        border-radius: 999px;
+        background: var(--yellow);
+        transform: rotate(-1.5deg);
+      }
+
+      .grid-2,
+      .grid-3 {
+        display: grid;
+        align-items: stretch;
+        gap: 1em;
+        width: 100%;
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        position: relative;
+        padding: 1.25em;
+        border: 1px solid var(--line);
+        border-radius: 1em;
+        background: rgb(255 255 255 / 72%);
+        box-shadow: 0 0.8rem 2rem rgb(23 35 27 / 8%);
+      }
+
+      .card p {
+        margin-top: 0.55em;
+        color: #59645c;
+        font-size: 0.87em;
+      }
+
+      .card .number {
+        display: inline-grid;
+        width: 2.05em;
+        height: 2.05em;
+        margin-bottom: 0.7em;
+        place-items: center;
+        border-radius: 50%;
+        color: var(--cream);
+        background: var(--moss);
+        font-weight: 900;
+      }
+
+      .dark {
+        color: var(--cream);
+        background:
+          radial-gradient(circle at 78% 24%, rgb(168 204 138 / 24%), transparent 25%),
+          #17231b;
+      }
+
+      .dark::before {
+        background-image: radial-gradient(#f6f0df 0.75px, transparent 0.75px);
+        opacity: 0.08;
+      }
+
+      .dark::after,
+      .dark .lede {
+        color: #b8c4ba;
+      }
+
+      .dark strong {
+        color: var(--leaf);
+      }
+
+      .orange {
+        color: #2f1c13;
+        background: var(--orange);
+      }
+
+      .orange::before {
+        opacity: 0.09;
+      }
+
+      .orange::after {
+        color: rgb(47 28 19 / 62%);
+      }
+
+      .title-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(14em, 0.75fr);
+        align-items: center;
+        gap: 2em;
+      }
+
+      .title-meta {
+        display: flex;
+        gap: 0.7em;
+        margin-top: 1.6em;
+        flex-wrap: wrap;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4em;
+        padding: 0.4em 0.72em;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        font-size: 0.7em;
+        font-weight: 750;
+      }
+
+      .marmot {
+        position: relative;
+        width: min(27vw, 15em);
+        aspect-ratio: 1;
+        justify-self: center;
+        filter: drop-shadow(0 1.2rem 1.4rem rgb(0 0 0 / 14%));
+      }
+
+      .marmot .head {
+        position: absolute;
+        inset: 17% 10% 5%;
+        border: 0.22em solid #2d241e;
+        border-radius: 46% 46% 42% 42%;
+        background: #b67a4a;
+      }
+
+      .marmot .ear {
+        position: absolute;
+        top: 10%;
+        width: 27%;
+        aspect-ratio: 1;
+        border: 0.22em solid #2d241e;
+        border-radius: 50%;
+        background: #b67a4a;
+      }
+
+      .marmot .ear.left {
+        left: 12%;
+      }
+
+      .marmot .ear.right {
+        right: 12%;
+      }
+
+      .marmot .eye {
+        position: absolute;
+        top: 43%;
+        width: 7%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #2d241e;
+      }
+
+      .marmot .eye.left {
+        left: 32%;
+      }
+
+      .marmot .eye.right {
+        right: 32%;
+      }
+
+      .marmot .snout {
+        position: absolute;
+        left: 35%;
+        top: 52%;
+        width: 30%;
+        height: 25%;
+        border-radius: 50%;
+        background: #e4b985;
+      }
+
+      .marmot .nose {
+        position: absolute;
+        left: 45%;
+        top: 54%;
+        width: 10%;
+        height: 7%;
+        border-radius: 50% 50% 45% 45%;
+        background: #2d241e;
+      }
+
+      .marmot .tooth {
+        position: absolute;
+        top: 65%;
+        width: 8%;
+        height: 12%;
+        border: 0.12em solid #2d241e;
+        border-radius: 0.12em;
+        background: #fffaf0;
+      }
+
+      .marmot .tooth.left {
+        left: 42%;
+      }
+
+      .marmot .tooth.right {
+        right: 42%;
+      }
+
+      .big-quote {
+        max-width: 17em;
+        font-size: 2.45em;
+        font-weight: 850;
+        letter-spacing: -0.04em;
+        line-height: 1.18;
+      }
+
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 1.4em;
+      }
+
+      .compare .versus {
+        display: grid;
+        width: 2.8em;
+        height: 2.8em;
+        place-items: center;
+        border-radius: 50%;
+        color: var(--cream);
+        background: var(--orange);
+        font-size: 0.72em;
+        font-weight: 900;
+      }
+
+      .compare-card {
+        min-height: 11.5em;
+        padding: 1.5em;
+        border: 0.13em solid var(--ink);
+        border-radius: 1.2em;
+        background: var(--cream);
+      }
+
+      .compare-card .icon {
+        font-size: 2.4em;
+      }
+
+      .compare-card ul {
+        margin-top: 0.7em;
+        font-size: 0.84em;
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr auto 1fr;
+        align-items: center;
+        gap: 0.8em;
+      }
+
+      .station {
+        min-height: 9em;
+        padding: 1.2em;
+        border: 0.14em solid var(--ink);
+        border-radius: 1em;
+        background: var(--cream);
+        box-shadow: 0.5em 0.5em 0 var(--leaf);
+      }
+
+      .station .icon {
+        display: block;
+        margin-bottom: 0.45em;
+        font-size: 2em;
+      }
+
+      .arrow {
+        color: var(--orange);
+        font-size: 2em;
+        font-weight: 900;
+      }
+
+      .command-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7em;
+        padding: 1.1em;
+        border-radius: 1em;
+        background: rgb(49 92 66 / 10%);
+        flex-wrap: wrap;
+      }
+
+      .command-flow code {
+        padding: 0.48em 0.68em;
+        border: 0;
+        color: var(--cream);
+        background: var(--moss);
+        font-weight: 800;
+      }
+
+      .terminal-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        align-items: center;
+        gap: 1.4em;
+      }
+
+      .terminal-label {
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+        margin-bottom: -0.55em;
+        padding-left: 1em;
+        color: #d6ded8;
+        font-size: 0.67em;
+      }
+
+      .terminal-label i {
+        width: 0.7em;
+        height: 0.7em;
+        border-radius: 50%;
+        background: var(--pink);
+        box-shadow: 1.05em 0 var(--yellow), 2.1em 0 var(--leaf);
+      }
+
+      .callout {
+        padding: 1em 1.2em;
+        border-left: 0.28em solid var(--orange);
+        border-radius: 0 0.8em 0.8em 0;
+        background: rgb(232 117 53 / 10%);
+      }
+
+      .callout p {
+        font-size: 0.88em;
+      }
+
+      .branch-viz {
+        position: relative;
+        min-height: 15em;
+        padding: 1.5em;
+        border-radius: 1.2em;
+        color: var(--cream);
+        background: var(--ink);
+        box-shadow: var(--shadow);
+      }
+
+      .branch-row {
+        display: grid;
+        grid-template-columns: 7em repeat(4, 1fr);
+        align-items: center;
+        gap: 0.8em;
+        min-height: 5.2em;
+      }
+
+      .branch-name {
+        color: var(--leaf);
+        font-family: monospace;
+        font-weight: 800;
+      }
+
+      .commit {
+        position: relative;
+        display: grid;
+        width: 2.05em;
+        height: 2.05em;
+        place-self: center;
+        place-items: center;
+        border: 0.14em solid currentColor;
+        border-radius: 50%;
+        color: var(--cream);
+        background: var(--moss);
+        font-family: monospace;
+        font-size: 0.65em;
+        font-weight: 850;
+      }
+
+      .commit::after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        width: calc(4vw + 1.2em);
+        height: 0.14em;
+        background: currentColor;
+      }
+
+      .commit:last-child::after {
+        display: none;
+      }
+
+      .commit.feature {
+        color: var(--yellow);
+        background: #704b1d;
+      }
+
+      .conflict {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: stretch;
+        gap: 0.8em;
+      }
+
+      .version {
+        padding: 1.1em;
+        border-radius: 0.9em;
+        color: var(--cream);
+        background: var(--moss);
+      }
+
+      .version.right {
+        background: #8b4d2b;
+      }
+
+      .version code {
+        display: block;
+        margin-top: 0.7em;
+        font-size: 0.78em;
+      }
+
+      .bolt {
+        align-self: center;
+        font-size: 2.4em;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        align-items: center;
+        gap: 0.45em;
+      }
+
+      .workflow .step {
+        min-height: 7.5em;
+        padding: 0.9em 0.65em;
+        border: 1px solid var(--line);
+        border-radius: 0.8em;
+        background: rgb(255 255 255 / 70%);
+        text-align: center;
+      }
+
+      .workflow .step span {
+        display: block;
+        margin-bottom: 0.4em;
+        font-size: 1.65em;
+      }
+
+      .workflow .step strong {
+        display: block;
+        font-size: 0.72em;
+      }
+
+      .workflow .mini-arrow {
+        color: var(--orange);
+        font-weight: 900;
+      }
+
+      .danger-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8em;
+        list-style: none;
+        padding: 0;
+      }
+
+      .danger-list li {
+        display: flex;
+        gap: 0.7em;
+        padding: 0.9em 1em;
+        border: 1px solid rgb(232 117 53 / 30%);
+        border-radius: 0.8em;
+        background: rgb(255 250 240 / 75%);
+      }
+
+      .danger-list .sign {
+        flex: 0 0 auto;
+        font-size: 1.35em;
+      }
+
+      .challenge {
+        display: grid;
+        grid-template-columns: 0.7fr 1.3fr;
+        gap: 1.2em;
+        align-items: center;
+      }
+
+      .timer {
+        display: grid;
+        width: 7.5em;
+        aspect-ratio: 1;
+        place-items: center;
+        border: 0.18em solid var(--ink);
+        border-radius: 50%;
+        background: var(--yellow);
+        box-shadow: 0.55em 0.55em 0 var(--orange);
+        font-size: 1.5em;
+        font-weight: 950;
+      }
+
+      .recap {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.8em;
+      }
+
+      .recap .card {
+        min-height: 8em;
+      }
+
+      .big-link {
+        display: inline-block;
+        width: fit-content;
+        padding: 0.7em 1em;
+        border: 0.12em solid currentColor;
+        border-radius: 999px;
+        color: inherit;
+        text-decoration: none;
+        font-weight: 850;
+      }
+
+      .controls {
+        position: fixed;
+        right: 1rem;
+        bottom: 0.8rem;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.42rem;
+        border: 1px solid rgb(255 255 255 / 16%);
+        border-radius: 999px;
+        color: var(--cream);
+        background: rgb(23 35 27 / 88%);
+        box-shadow: 0 0.7rem 2rem rgb(0 0 0 / 22%);
+        backdrop-filter: blur(14px);
+      }
+
+      .controls button {
+        display: grid;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        color: inherit;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .controls button:hover,
+      .controls button:focus-visible {
+        outline: none;
+        background: rgb(255 255 255 / 16%);
+      }
+
+      .controls button:disabled {
+        cursor: not-allowed;
+        opacity: 0.3;
+      }
+
+      .counter {
+        min-width: 4.4rem;
+        text-align: center;
+        font-size: 0.72rem;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .progress {
+        position: fixed;
+        inset: auto 0 0;
+        z-index: 31;
+        height: 0.3rem;
+        background: rgb(23 35 27 / 12%);
+      }
+
+      .progress span {
+        display: block;
+        width: 0;
+        height: 100%;
+        background: var(--orange);
+        transition: width 260ms ease;
+      }
+
+      .notes-panel,
+      .help-panel {
+        position: fixed;
+        z-index: 40;
+        display: none;
+        border: 1px solid rgb(255 255 255 / 18%);
+        border-radius: 1rem;
+        color: var(--cream);
+        background: rgb(23 35 27 / 96%);
+        box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 35%);
+        backdrop-filter: blur(18px);
+      }
+
+      .notes-panel.open,
+      .help-panel.open {
+        display: block;
+      }
+
+      .notes-panel {
+        left: 1rem;
+        right: 1rem;
+        bottom: 4rem;
+        max-height: 34vh;
+        padding: 1.2rem 1.4rem;
+        overflow: auto;
+      }
+
+      .notes-panel h2,
+      .help-panel h2 {
+        margin-bottom: 0.7rem;
+        color: var(--leaf);
+        font-size: 1rem;
+        letter-spacing: 0;
+      }
+
+      .notes-panel p {
+        font-size: 0.9rem;
+        line-height: 1.65;
+        white-space: pre-line;
+      }
+
+      .help-panel {
+        left: 50%;
+        top: 50%;
+        width: min(34rem, calc(100vw - 2rem));
+        padding: 1.4rem;
+        transform: translate(-50%, -50%);
+      }
+
+      .help-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.65rem 1.2rem;
+        font-size: 0.85rem;
+      }
+
+      kbd {
+        display: inline-block;
+        min-width: 1.8em;
+        padding: 0.18em 0.4em;
+        border: 1px solid rgb(255 255 255 / 28%);
+        border-bottom-width: 3px;
+        border-radius: 0.35em;
+        text-align: center;
+      }
+
+      .notes {
+        display: none;
+      }
+
+      .deck.overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+        padding: 1rem 1rem 5rem;
+        overflow: auto;
+        background: #101711;
+      }
+
+      .deck.overview .slide {
+        position: relative;
+        inset: auto;
+        display: flex;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        min-height: 0;
+        padding: 1.3em 1.6em;
+        border: 2px solid transparent;
+        border-radius: 0.8rem;
+        font-size: 5px;
+        cursor: pointer;
+        animation: none;
+      }
+
+      .deck.overview .slide.active {
+        border-color: var(--orange);
+      }
+
+      .deck.overview .slide::after {
+        right: 1em;
+        top: 1em;
+      }
+
+      .deck.overview .controls,
+      .deck.overview + .controls {
+        position: fixed;
+      }
+
+      @media (max-width: 720px), (max-aspect-ratio: 4/5) {
+        body {
+          font-size: clamp(12px, 2.7vw, 20px);
+        }
+
+        .slide {
+          justify-content: flex-start;
+          padding: 4.5rem 1.3rem 5rem;
+          overflow-y: auto;
+        }
+
+        h1 {
+          font-size: 3em;
+        }
+
+        h2 {
+          font-size: 2.15em;
+        }
+
+        .title-layout,
+        .terminal-grid,
+        .challenge {
+          grid-template-columns: 1fr;
+        }
+
+        .marmot {
+          width: 11em;
+        }
+
+        .grid-3,
+        .recap {
+          grid-template-columns: 1fr;
+        }
+
+        .grid-2,
+        .danger-list {
+          grid-template-columns: 1fr;
+        }
+
+        .compare,
+        .conflict {
+          grid-template-columns: 1fr;
+        }
+
+        .compare .versus,
+        .bolt {
+          justify-self: center;
+        }
+
+        .pipeline {
+          grid-template-columns: 1fr;
+        }
+
+        .pipeline .arrow {
+          justify-self: center;
+          transform: rotate(90deg);
+        }
+
+        .workflow {
+          grid-template-columns: 1fr;
+        }
+
+        .workflow .step {
+          min-height: auto;
+        }
+
+        .workflow .mini-arrow {
+          justify-self: center;
+          transform: rotate(90deg);
+        }
+
+        .branch-viz {
+          min-width: 38rem;
+        }
+
+        .branch-wrap {
+          overflow-x: auto;
+        }
+
+        .controls #overview,
+        .controls #notes,
+        .controls #fullscreen {
+          display: none;
+        }
+      }
+
+      @media print {
+        html,
+        body {
+          height: auto;
+          overflow: visible;
+          background: white;
+        }
+
+        .deck {
+          position: static;
+        }
+
+        .slide,
+        .slide.active {
+          position: relative;
+          display: flex;
+          width: 100vw;
+          height: 56.25vw;
+          break-after: page;
+          animation: none;
+        }
+
+        .controls,
+        .progress,
+        .notes-panel,
+        .help-panel {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck" id="deck" aria-live="polite">
+      <section class="slide dark active" data-chapter="OPENING">
+        <div class="title-layout">
+          <div>
+            <p class="eyebrow">Git &amp; GitHub 實戰工作坊</p>
+            <h1>拯救<br /><span class="accent">土撥鼠</span>咖啡館</h1>
+            <p class="lede">從第一個 commit，到一個真正被 review、合併的 Pull Request。</p>
+            <div class="title-meta">
+              <span class="pill">⏱ 45–60 分鐘</span>
+              <span class="pill">⌨️ 3 次實操</span>
+              <span class="pill">🌱 新手友善</span>
+            </div>
+          </div>
+          <div class="marmot" aria-label="土撥鼠插圖" role="img">
+            <span class="ear left"></span><span class="ear right"></span>
+            <span class="head"></span>
+            <span class="eye left"></span><span class="eye right"></span>
+            <span class="snout"></span><span class="nose"></span>
+            <span class="tooth left"></span><span class="tooth right"></span>
+          </div>
+        </div>
+        <aside class="notes">開場先問：有多少人曾經把檔名存成 final、final-2、真的-final？今天的目標就是用一套更可靠的方式取代它。</aside>
+      </section>
+
+      <section class="slide orange" data-chapter="MISSION">
+        <p class="eyebrow">今天只完成一件事</p>
+        <p class="big-quote">把一個想法，<br />安全地送進團隊的<span class="marker">正式版本</span>。</p>
+        <p class="lede">你不需要背完所有指令。你需要知道自己在哪裡、改了什麼、下一步要保存什麼。</p>
+        <aside class="notes">強調課程目標不是背誦。若時間有限，後面的進階指令可以略過，但三個核心問題要反覆詢問。</aside>
+      </section>
+
+      <section class="slide" data-chapter="01 · MENTAL MODEL">
+        <p class="eyebrow">先拆掉第一個誤會</p>
+        <h2>Git ≠ GitHub</h2>
+        <div class="compare">
+          <article class="compare-card">
+            <div class="icon">🧰</div>
+            <h3>Git</h3>
+            <ul>
+              <li>你電腦上的版本控制工具</li>
+              <li>離線也能 commit、branch、merge</li>
+              <li>保存「內容如何演進」</li>
+            </ul>
+          </article>
+          <div class="versus">+</div>
+          <article class="compare-card">
+            <div class="icon">🌐</div>
+            <h3>GitHub</h3>
+            <ul>
+              <li>放置 Git repository 的平台</li>
+              <li>提供 Issue、PR、Review、Actions</li>
+              <li>讓團隊討論與分享版本</li>
+            </ul>
+          </article>
+        </div>
+        <aside class="notes">類比：Git 像相機與相簿，GitHub 像可協作的雲端相簿。沒有 GitHub 仍能使用 Git。</aside>
+      </section>
+
+      <section class="slide" data-chapter="01 · MENTAL MODEL">
+        <p class="eyebrow">Git 的三個區域</p>
+        <h2>不是「存檔」，是<span class="marker">策展下一個版本</span></h2>
+        <div class="pipeline">
+          <article class="station">
+            <span class="icon">📝</span>
+            <h3>工作區</h3>
+            <p>正在編輯的檔案</p>
+          </article>
+          <div class="arrow">→</div>
+          <article class="station">
+            <span class="icon">🛒</span>
+            <h3>暫存區</h3>
+            <p>下一個 commit 的精選內容</p>
+          </article>
+          <div class="arrow">→</div>
+          <article class="station">
+            <span class="icon">📚</span>
+            <h3>版本庫</h3>
+            <p>已保存、可回看的歷史</p>
+          </article>
+        </div>
+        <div class="command-flow">
+          <span>Working directory</span><code>git add</code><span>Staging area</span><code>git commit</code><span>Repository</span>
+        </div>
+        <aside class="notes">用購物車比喻 staging area：拿進購物車不等於結帳；你可以選擇這次 commit 要包含哪些檔案。</aside>
+      </section>
+
+      <section class="slide dark" data-chapter="02 · FIRST COMMIT">
+        <p class="eyebrow">每天最重要的循環</p>
+        <h2>先看，再選，最後保存。</h2>
+        <div class="terminal-grid">
+          <div>
+            <div class="terminal-label"><i></i><span>terminal</span></div>
+            <pre><span class="prompt">$</span> git status
+<span class="prompt">$</span> git diff
+<span class="prompt">$</span> git add menu.md
+<span class="prompt">$</span> git diff --staged
+<span class="prompt">$</span> git commit -m "Add cinnamon latte"</pre>
+          </div>
+          <div>
+            <p class="big-quote">status → add → commit</p>
+            <p class="lede">不要把 `git add .` 當成反射動作。先確認這次版本真的只做一件事。</p>
+          </div>
+        </div>
+        <aside class="notes">現場逐行執行。特別比較 git diff 與 git diff --staged；問學員 add 前後內容去了哪裡。</aside>
+      </section>
+
+      <section class="slide" data-chapter="HANDS-ON · 01">
+        <p class="eyebrow">⌨️ 實操一｜8 分鐘</p>
+        <div class="challenge">
+          <div class="timer">08:00</div>
+          <div>
+            <h2>替咖啡館新增一杯「肉桂拿鐵」</h2>
+            <ol>
+              <li>修改 <code>menu.md</code></li>
+              <li>用 <code>status</code> 與 <code>diff</code> 確認</li>
+              <li>只 add 這個檔案</li>
+              <li>寫一個「未來的你看得懂」的 commit</li>
+            </ol>
+          </div>
+        </div>
+        <div class="callout"><p><strong>完成標誌：</strong><code>git status</code> 顯示 working tree clean，最新 commit 訊息能說明新增了什麼。</p></div>
+        <aside class="notes">讓兩人一組：Driver 操作，Navigator 在按 Enter 前預測結果。時間到交換一組 commit message，討論哪個比較容易理解。</aside>
+      </section>
+
+      <section class="slide" data-chapter="03 · TIME TRAVEL">
+        <p class="eyebrow">犯錯不可怕，搞不清楚狀態才可怕</p>
+        <h2>Git 是你的<span class="marker">安全網</span></h2>
+        <div class="grid-3">
+          <article class="card">
+            <span class="number">1</span>
+            <h3>先看差異</h3>
+            <p><code>git diff</code><br />先知道自己要丟掉什麼。</p>
+          </article>
+          <article class="card">
+            <span class="number">2</span>
+            <h3>尚未提交</h3>
+            <p><code>git restore file</code><br />復原工作區檔案。</p>
+          </article>
+          <article class="card">
+            <span class="number">3</span>
+            <h3>已經分享</h3>
+            <p><code>git revert ID</code><br />用新 commit 反轉錯誤。</p>
+          </article>
+        </div>
+        <div class="callout"><p><strong>共同歷史的原則：</strong>錯誤可以留下，來龍去脈要清楚。不要任意改寫隊友已經取得的 commit。</p></div>
+        <aside class="notes">這裡先不教 reset。新手最需要的是能判斷 restore 與 revert 的使用時機，並養成先 diff 的習慣。</aside>
+      </section>
+
+      <section class="slide dark" data-chapter="04 · BRANCHES">
+        <p class="eyebrow">平行宇宙，但很輕量</p>
+        <h2>Branch 讓未完成的工作，不打擾正式版本。</h2>
+        <div class="branch-wrap">
+          <div class="branch-viz" aria-label="分支示意圖">
+            <div class="branch-row">
+              <span class="branch-name">main</span>
+              <span class="commit">A</span>
+              <span class="commit">B</span>
+              <span class="commit">C</span>
+              <span class="commit">D</span>
+            </div>
+            <div class="branch-row">
+              <span class="branch-name">feature/cake</span>
+              <span></span>
+              <span class="commit feature">E</span>
+              <span class="commit feature">F</span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+        <p class="lede">Branch 不是複製一整份專案；它是一個指向 commit、會跟著你前進的標籤。</p>
+        <aside class="notes">指著圖說：A/B 是共同祖先，feature 有 E/F，main 繼續出現 C/D。兩條時間線可以稍後再整合。</aside>
+      </section>
+
+      <section class="slide" data-chapter="04 · BRANCHES">
+        <p class="eyebrow">新品秘密開發</p>
+        <h2>建立 → 工作 → 回主線 → 合併</h2>
+        <div class="terminal-grid">
+          <div>
+            <div class="terminal-label"><i></i><span>terminal</span></div>
+            <pre><span class="prompt">$</span> git switch -c feature/acorn-cake
+<span class="comment"># 修改、add、commit...</span>
+
+<span class="prompt">$</span> git switch main
+<span class="prompt">$</span> git merge feature/acorn-cake
+<span class="prompt">$</span> git branch -d feature/acorn-cake</pre>
+          </div>
+          <div class="card">
+            <h3>合併的方向</h3>
+            <p>先切到<strong>要接收改動</strong>的 branch，再 merge <strong>要帶進來</strong>的 branch。</p>
+            <p><code>main ← feature</code></p>
+          </div>
+        </div>
+        <aside class="notes">最常見錯誤是站錯 branch 合併。請全場一起說一次：先切到接收方，再 merge 來源方。</aside>
+      </section>
+
+      <section class="slide orange" data-chapter="HANDS-ON · 02">
+        <p class="eyebrow">⌨️ 實操二｜10 分鐘</p>
+        <div class="challenge">
+          <div class="timer">10:00</div>
+          <div>
+            <h2>在秘密 branch 開發「橡實蛋糕」</h2>
+            <ol>
+              <li>建立 <code>feature/acorn-cake</code></li>
+              <li>修改菜單並 commit</li>
+              <li>切回 main，觀察內容消失</li>
+              <li>合併後再觀察內容回來</li>
+            </ol>
+          </div>
+        </div>
+        <aside class="notes">內容消失時刻意停一下，讓學員說明為何不是檔案遺失。最後用 git log --oneline --graph --all 看歷史。</aside>
+      </section>
+
+      <section class="slide" data-chapter="05 · CONFLICTS">
+        <p class="eyebrow">Conflict 不是錯誤，是一個決策點</p>
+        <h2>Git 不猜人類的意圖。</h2>
+        <div class="conflict">
+          <div class="version">
+            <h3>main</h3>
+            <code>城市裡的森林角落</code>
+          </div>
+          <div class="bolt">⚡</div>
+          <div class="version right">
+            <h3>feature</h3>
+            <code>每一口都是冒險</code>
+          </div>
+        </div>
+        <div class="grid-2">
+          <pre>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+城市裡的森林角落
+&#61;&#61;&#61;&#61;&#61;&#61;&#61;
+每一口都是冒險
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature</pre>
+          <ol>
+            <li><code>git status</code> 找衝突檔</li>
+            <li>編輯成團隊真正想要的內容</li>
+            <li>移除三種衝突標記</li>
+            <li><code>add</code> ＋ <code>commit</code></li>
+          </ol>
+        </div>
+        <aside class="notes">強調解衝突不是「選比較新的」，而是理解兩邊意圖後做內容決策。想退出可用 git merge --abort。</aside>
+      </section>
+
+      <section class="slide dark" data-chapter="06 · REMOTES">
+        <p class="eyebrow">從一台電腦，到一個團隊</p>
+        <h2>Commit 在本機；Push 才分享。</h2>
+        <div class="pipeline">
+          <article class="station">
+            <span class="icon">💻</span>
+            <h3>Local</h3>
+            <p>你的 commits 與 branches</p>
+          </article>
+          <div class="arrow">⇄</div>
+          <article class="station">
+            <span class="icon">☁️</span>
+            <h3>origin</h3>
+            <p>GitHub 上的遠端 repository</p>
+          </article>
+          <div class="arrow">⇄</div>
+          <article class="station">
+            <span class="icon">👥</span>
+            <h3>Team</h3>
+            <p>透過 PR review 與整合</p>
+          </article>
+        </div>
+        <div class="command-flow">
+          <code>git fetch</code><span>只更新遠端資訊</span><code>git pull</code><span>下載並整合</span><code>git push</code><span>分享 commits</span>
+        </div>
+        <aside class="notes">問學員：commit 完成後同事看得到嗎？答案是看不到，直到 push。fetch 不改工作區，是觀察遠端的安全動作。</aside>
+      </section>
+
+      <section class="slide" data-chapter="07 · COLLABORATION">
+        <p class="eyebrow">一條可靠的小團隊工作流</p>
+        <h2>不要直接把想法丟進 main</h2>
+        <div class="workflow">
+          <div class="step"><span>🎯</span><strong>Issue</strong></div><div class="mini-arrow">→</div>
+          <div class="step"><span>🌿</span><strong>Branch</strong></div><div class="mini-arrow">→</div>
+          <div class="step"><span>📦</span><strong>Commits</strong></div><div class="mini-arrow">→</div>
+          <div class="step"><span>🚀</span><strong>Push</strong></div>
+        </div>
+        <div class="workflow">
+          <div class="step"><span>💬</span><strong>Pull Request</strong></div><div class="mini-arrow">→</div>
+          <div class="step"><span>🔍</span><strong>Review</strong></div><div class="mini-arrow">→</div>
+          <div class="step"><span>🤝</span><strong>Merge</strong></div><div class="mini-arrow">→</div>
+          <div class="step"><span>🧹</span><strong>Delete branch</strong></div>
+        </div>
+        <aside class="notes">Issue 記錄為什麼，commit 記錄如何一步步做，PR 記錄整體變更與 review 決策。三層資訊彼此互補。</aside>
+      </section>
+
+      <section class="slide" data-chapter="07 · PULL REQUESTS">
+        <p class="eyebrow">好的 PR 讓 Reviewer 很快進入狀況</p>
+        <h2>不是「請幫我看」，而是提供一條<span class="marker">驗證路徑</span></h2>
+        <div class="grid-2">
+          <article class="card">
+            <h3>作者要說清楚</h3>
+            <ul>
+              <li>為什麼要改？</li>
+              <li>這次改了什麼？</li>
+              <li>要怎麼驗證？</li>
+              <li>有哪些取捨或未完成範圍？</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Reviewer 要真的看</h3>
+            <ul>
+              <li>先看 <strong>Files changed</strong></li>
+              <li>確認沒有無關檔案與秘密</li>
+              <li>留言要具體、對事不對人</li>
+              <li>問題處理後才 Approve</li>
+            </ul>
+          </article>
+        </div>
+        <aside class="notes">可以展示 repo 的 PR template。提醒學員：Review 是共同負責品質，不是找碴，也不是只按 Approve。</aside>
+      </section>
+
+      <section class="slide orange" data-chapter="HANDS-ON · 03">
+        <p class="eyebrow">⌨️ 實操三｜12 分鐘</p>
+        <div class="challenge">
+          <div class="timer">12:00</div>
+          <div>
+            <h2>把學習筆記送進 Pull Request</h2>
+            <ol>
+              <li>建立 Issue 與 branch</li>
+              <li>新增一份個人學習筆記</li>
+              <li>commit、push、建立 PR</li>
+              <li>和隔壁同學交換 Review</li>
+            </ol>
+          </div>
+        </div>
+        <div class="callout"><p>PR 內容加入 <code>Closes #Issue編號</code>，合併時就能自動關閉對應 Issue。</p></div>
+        <aside class="notes">若只有一人，改做 self-review。要求至少一則具體建議，而不是只留言 LGTM。</aside>
+      </section>
+
+      <section class="slide" data-chapter="SAFETY">
+        <p class="eyebrow">五條救命原則</p>
+        <h2>先停一下，通常比多打一個指令更快。</h2>
+        <ul class="danger-list">
+          <li><span class="sign">🧭</span><span><strong>常看 status</strong><br />先確認 branch 與當前狀態。</span></li>
+          <li><span class="sign">🔎</span><span><strong>復原前看 diff</strong><br />知道自己即將丟掉什麼。</span></li>
+          <li><span class="sign">🧩</span><span><strong>一個 commit 一件事</strong><br />讓歷史容易理解與反轉。</span></li>
+          <li><span class="sign">🔐</span><span><strong>秘密永遠不要 commit</strong><br />密碼與 token 放進環境變數。</span></li>
+          <li><span class="sign">🚫</span><span><strong>共同分支別亂 force push</strong><br />已分享的歷史優先用 revert。</span></li>
+          <li><span class="sign">🙋</span><span><strong>看不懂就先問</strong><br />不要貼上來路不明的破壞性指令。</span></li>
+        </ul>
+        <aside class="notes">特別提醒：把 secret 從最新 commit 刪除仍不代表它沒出現在歷史，外洩後要立刻撤銷並換新。</aside>
+      </section>
+
+      <section class="slide dark" data-chapter="RECAP">
+        <p class="eyebrow">離開前，帶走三個問題</p>
+        <h2>每次動手前，先問：</h2>
+        <div class="recap">
+          <article class="card">
+            <span class="number">1</span>
+            <h3>我在哪個 branch？</h3>
+            <p><code>git status</code></p>
+          </article>
+          <article class="card">
+            <span class="number">2</span>
+            <h3>我改了什麼？</h3>
+            <p><code>git diff</code></p>
+          </article>
+          <article class="card">
+            <span class="number">3</span>
+            <h3>下一個 commit 放什麼？</h3>
+            <p><code>git diff --staged</code></p>
+          </article>
+        </div>
+        <aside class="notes">請大家不看投影片，口頭回答三個問題分別用什麼指令。這比背更多進階指令重要。</aside>
+      </section>
+
+      <section class="slide orange" data-chapter="NEXT STEP">
+        <p class="eyebrow">現在，真的去做一次</p>
+        <h2>刻意犯錯，<br />再把自己救回來。</h2>
+        <p class="lede">完整任務、練習沙盒、指令小抄都在 GitHub。</p>
+        <a class="big-link" href="https://github.com/ntumarmot/git-tutorial">github.com/ntumarmot/git-tutorial ↗</a>
+        <div class="title-meta">
+          <span class="pill">← / → 切換投影片</span>
+          <span class="pill">N 講者備註</span>
+          <span class="pill">? 快捷鍵</span>
+        </div>
+        <aside class="notes">收尾可以邀請大家替 repository 按 Star、開 Issue 回報卡關處，但更重要的是完成教材第 07 關的自主挑戰。</aside>
+      </section>
+    </main>
+
+    <nav class="controls" aria-label="簡報控制">
+      <button id="prev" type="button" aria-label="上一張">←</button>
+      <span class="counter" id="counter">1 / 18</span>
+      <button id="next" type="button" aria-label="下一張">→</button>
+      <button id="overview" type="button" aria-label="投影片總覽" title="總覽（O）">▦</button>
+      <button id="notes" type="button" aria-label="講者備註" title="講者備註（N）">N</button>
+      <button id="fullscreen" type="button" aria-label="全螢幕" title="全螢幕（F）">⛶</button>
+      <button id="help" type="button" aria-label="快捷鍵說明" title="快捷鍵（?）">?</button>
+    </nav>
+    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+    <aside class="notes-panel" id="notesPanel" aria-label="講者備註">
+      <h2>講者備註</h2>
+      <p id="notesContent"></p>
+    </aside>
+
+    <aside class="help-panel" id="helpPanel" aria-label="快捷鍵說明">
+      <h2>簡報快捷鍵</h2>
+      <div class="help-grid">
+        <span><kbd>→</kbd> / <kbd>Space</kbd></span><span>下一張</span>
+        <span><kbd>←</kbd></span><span>上一張</span>
+        <span><kbd>Home</kbd> / <kbd>End</kbd></span><span>第一張 / 最後一張</span>
+        <span><kbd>O</kbd></span><span>投影片總覽</span>
+        <span><kbd>N</kbd></span><span>講者備註</span>
+        <span><kbd>F</kbd></span><span>全螢幕</span>
+        <span><kbd>?</kbd> / <kbd>Esc</kbd></span><span>說明 / 關閉面板</span>
+      </div>
+    </aside>
+
+    <script>
+      (() => {
+        const deck = document.querySelector("#deck");
+        const slides = [...document.querySelectorAll(".slide")];
+        const prevButton = document.querySelector("#prev");
+        const nextButton = document.querySelector("#next");
+        const overviewButton = document.querySelector("#overview");
+        const notesButton = document.querySelector("#notes");
+        const fullscreenButton = document.querySelector("#fullscreen");
+        const helpButton = document.querySelector("#help");
+        const counter = document.querySelector("#counter");
+        const progressBar = document.querySelector("#progressBar");
+        const notesPanel = document.querySelector("#notesPanel");
+        const notesContent = document.querySelector("#notesContent");
+        const helpPanel = document.querySelector("#helpPanel");
+        let current = Math.max(0, Math.min(slides.length - 1, Number(location.hash.slice(1)) - 1 || 0));
+        let touchStartX = 0;
+
+        const isOpen = (element) => element.classList.contains("open");
+
+        function render() {
+          slides.forEach((slide, index) => {
+            slide.classList.toggle("active", index === current);
+            slide.setAttribute("aria-hidden", index === current ? "false" : "true");
+          });
+          counter.textContent = `${current + 1} / ${slides.length}`;
+          progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+          prevButton.disabled = current === 0;
+          nextButton.disabled = current === slides.length - 1;
+          const note = slides[current].querySelector(".notes");
+          notesContent.textContent = note ? note.textContent.trim() : "這一頁沒有講者備註。";
+          history.replaceState(null, "", `#${current + 1}`);
+          document.title = `${current + 1}/${slides.length} · Git & GitHub 實戰簡報`;
+        }
+
+        function goTo(index) {
+          current = Math.max(0, Math.min(slides.length - 1, index));
+          deck.classList.remove("overview");
+          render();
+        }
+
+        function toggleOverview() {
+          deck.classList.toggle("overview");
+          notesPanel.classList.remove("open");
+          helpPanel.classList.remove("open");
+        }
+
+        function toggleNotes() {
+          notesPanel.classList.toggle("open");
+          helpPanel.classList.remove("open");
+        }
+
+        function toggleHelp() {
+          helpPanel.classList.toggle("open");
+          notesPanel.classList.remove("open");
+        }
+
+        async function toggleFullscreen() {
+          if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen?.();
+          } else {
+            await document.exitFullscreen?.();
+          }
+        }
+
+        prevButton.addEventListener("click", () => goTo(current - 1));
+        nextButton.addEventListener("click", () => goTo(current + 1));
+        overviewButton.addEventListener("click", toggleOverview);
+        notesButton.addEventListener("click", toggleNotes);
+        fullscreenButton.addEventListener("click", toggleFullscreen);
+        helpButton.addEventListener("click", toggleHelp);
+
+        slides.forEach((slide, index) => {
+          slide.addEventListener("click", () => {
+            if (deck.classList.contains("overview")) goTo(index);
+          });
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            notesPanel.classList.remove("open");
+            helpPanel.classList.remove("open");
+            deck.classList.remove("overview");
+            return;
+          }
+          if (isOpen(helpPanel) || isOpen(notesPanel)) return;
+          if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+            event.preventDefault();
+            goTo(current + 1);
+          } else if (["ArrowLeft", "PageUp"].includes(event.key)) {
+            event.preventDefault();
+            goTo(current - 1);
+          } else if (event.key === "Home") {
+            goTo(0);
+          } else if (event.key === "End") {
+            goTo(slides.length - 1);
+          } else if (event.key.toLowerCase() === "o") {
+            toggleOverview();
+          } else if (event.key.toLowerCase() === "n") {
+            toggleNotes();
+          } else if (event.key.toLowerCase() === "f") {
+            toggleFullscreen();
+          } else if (event.key === "?") {
+            toggleHelp();
+          }
+        });
+
+        deck.addEventListener("touchstart", (event) => {
+          touchStartX = event.changedTouches[0].screenX;
+        }, { passive: true });
+
+        deck.addEventListener("touchend", (event) => {
+          const distance = event.changedTouches[0].screenX - touchStartX;
+          if (Math.abs(distance) < 55 || deck.classList.contains("overview")) return;
+          goTo(distance < 0 ? current + 1 : current - 1);
+        }, { passive: true });
+
+        window.addEventListener("hashchange", () => {
+          const requested = Number(location.hash.slice(1));
+          if (Number.isFinite(requested) && requested > 0) goTo(requested - 1);
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>

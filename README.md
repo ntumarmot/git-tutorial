@@ -32,6 +32,20 @@ cd git-tutorial
 
 接著閱讀 [START-HERE.md](START-HERE.md)，開始第一個任務。
 
+## HTML 互動簡報
+
+需要帶工作坊或快速介紹時，可直接用瀏覽器開啟 [slides/index.html](slides/index.html)。簡報不依賴外部套件，離線也能使用。
+
+[![Git 與 GitHub 實戰簡報預覽](slides/preview.png)](slides/index.html)
+
+- `←`／`→` 或空白鍵：切換投影片
+- `O`：投影片總覽
+- `N`：顯示講者備註
+- `F`：進入全螢幕
+- `?`：查看所有快捷鍵
+
+也可以用瀏覽器的列印功能匯出成 PDF。
+
 ## 任務地圖
 
 | 關卡 | 主題 | 建議時間 | 完成標誌 |
@@ -81,6 +95,7 @@ Git 的核心不是背指令，而是隨時回答三個問題：**我在哪個 b
 ```text
 lessons/       任務式教學
 starter/       咖啡館網站初始素材
+slides/        可離線播放的 HTML 互動簡報
 scripts/       環境健檢、沙盒建立與驗收工具
 .github/       Issue、PR 範本與自動檢查
 ```

@@ -16,7 +16,7 @@ fail() {
 
 printf '🐿️  教材驗收\n\n'
 
-required_files='README.md START-HERE.md CHEATSHEET.md FACILITATOR.md starter/site/index.html starter/site/style.css starter/site/menu.md starter/site/about.md'
+required_files='README.md START-HERE.md CHEATSHEET.md FACILITATOR.md slides/index.html starter/site/index.html starter/site/style.css starter/site/menu.md starter/site/about.md'
 for file in $required_files; do
   if [ -s "$repo_dir/$file" ]; then
     ok "$file 存在"
@@ -43,6 +43,13 @@ if [ "$lesson_count" -eq 8 ]; then
   ok '8 個任務關卡都存在'
 else
   fail "預期 8 個關卡，實際找到 $lesson_count 個"
+fi
+
+slide_count=$(grep -c '<section class="[^"]*slide' "$repo_dir/slides/index.html")
+if [ "$slide_count" -eq 18 ]; then
+  ok 'HTML 簡報包含 18 張投影片'
+else
+  fail "預期 18 張投影片，實際找到 $slide_count 張"
 fi
 
 printf '\n'
