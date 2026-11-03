@@ -1,0 +1,27 @@
+name: "✨ 功能任務"
+description: 提出一項可驗收的教材或咖啡館改善
+title: "[任務] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 為什麼需要這項改變？
+      description: 說明使用情境或目前遇到的問題。
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 完成條件
+      description: 列出可以客觀確認的結果。
+      placeholder: |
+        - [ ] 條件一
+        - [ ] 條件二
+    validations:
+      required: true
+  - type: textarea
+    id: approach
+    attributes:
+      label: 預計作法
+      description: 簡述可能修改的檔案或步驟；不確定也可以註明。
